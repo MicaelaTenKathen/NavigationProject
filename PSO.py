@@ -242,11 +242,13 @@ def distance(g, n_data, part, dist1, dist2, dist3, dist4):
     return dist1, dist2, dist3, dist4
 
 
-e2 = str('PSOMU26.xlsx')
-e3 = str('PSOSigma26.xlsx')
-e4 = str('PSODist6.xlsx')
-e1 = str('PSOError6.xlsx')
-random.seed(23032016)
+e1 = str('PSOError.xlsx')
+e2 = str('PSOMU.xlsx')
+e3 = str('PSOSigma.xlsx')
+e4 = str('PSODist.xlsx')
+
+GEN = 200
+random.seed(100)
 pop = toolbox.population(n=4)
 stats = tools.Statistics(lambda ind: ind.fitness.values)
 stats.register("avg", numpy.mean)
@@ -284,7 +286,6 @@ plot = np.zeros([dimx, dimy])
 for i in range(len(X_test)):
     plot[X_test[i][0] + abs(grid_min), X_test[i][1] + abs(grid_min)] = benchmark_array[i]
 Benchmark_plot = plot
-#Benchmark_plot = benchmark_array.reshape(dimx, dimy)
 
 bench_data = []
 MSE_data = []

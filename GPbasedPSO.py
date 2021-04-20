@@ -264,17 +264,16 @@ def distance(g, n_data, part, dist1, dist2, dist3, dist4):
         dist4 = math.sqrt((part4x[g] - part4x[b]) ** 2 + (part4y[g] - part4y[b]) ** 2) + dist4
     return dist1, dist2, dist3, dist4
 
+e1 = str('Error.xlsx')
+e2 = str('MU.xlsx')
+e3 = str('Sigma.xlsx')
+e4 = str('Dist.xlsx')
 
-e2 = str('MU26200.xlsx')
-e3 = str('Sigma26200.xlsx')
-
-
-GEN = 50
+GEN = 200
 ni = 10
 c1, c2, c3 = 1, 1, 3
-e1 = str('Error1130590.xlsx')
-e4 = str('Dist90.xlsx')
-random.seed(23032016)
+
+random.seed(100)
 pop = toolbox.population(n=4)
 stats = tools.Statistics(lambda ind: ind.fitness.values)
 stats.register("avg", numpy.mean)
@@ -312,7 +311,6 @@ plot = np.zeros([dimx, dimy])
 for i in range(len(X_test)):
     plot[X_test[i][0] + abs(grid_min), X_test[i][1] + abs(grid_min)] = benchmark_array[i]
 Benchmark_plot = plot
-#benchmark_array.reshape(dimx, dimy)
 
 bench_data = []
 MSE_data = []
