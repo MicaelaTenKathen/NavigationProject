@@ -104,13 +104,13 @@ def plot_movimiento(x_a, y_a):
 ## % Gaussian Progress
 
 sigma_kernel = 0.5
-ker = RBF(length_scale=0.6)
+ker = RBF(length_scale=0.5)
 
 f_max = grid_max
 f_min = grid_min
 j = 0
 i = 0
-map, map2 = np.mgrid[f_min:f_max:1, f_min:f_max:1]
+map1, map2 = np.mgrid[f_min:f_max:1, f_min:f_max:1]
 
 dimx = map2.shape[0]
 dimy = map2.shape[1]
@@ -158,16 +158,28 @@ def plot_gaussian(x_a, y_a, n, Z_var, Z_mean, Benchmark_plot):
     fig, axs = plt.subplots(2, 1, figsize=(3.5, 6))
 
     im1 = axs[0].scatter(x_ga, y_ga, c=n, cmap="gist_rainbow", marker='.')
+    p1x = list(map(lambda x: x + abs(grid_min), part1x))
+    p1y = list(map(lambda x: x + abs(grid_min), part1y))
+    axs[0].plot(p1x, p1y, 'r')
+    p2x = list(map(lambda x: x + abs(grid_min), part2x))
+    p2y = list(map(lambda x: x + abs(grid_min), part2y))
+    axs[0].plot(p2x, p2y, 'w')
+    p3x = list(map(lambda x: x + abs(grid_min), part3x))
+    p3y = list(map(lambda x: x + abs(grid_min), part3y))
+    axs[0].plot(p3x, p3y, 'c')
+    p4x = list(map(lambda x: x + abs(grid_min), part4x))
+    p4y = list(map(lambda x: x + abs(grid_min), part4y))
+    axs[0].plot(p4x, p4y, 'k')
 
     im2 = axs[0].imshow(Z_var, interpolation='bilinear', origin='lower', cmap="viridis")
-    plt.colorbar(im2, ax=axs[0], format='%.2f', label='σ', shrink=1.0)
-    axs[0].set_xlabel("x [m]")
+    #plt.colorbar(im2, ax=axs[0], format='%.2f', label='σ', shrink=1.0)
+    #axs[0].set_xlabel("x [m]")
     axs[0].set_ylabel("y [m]")
     axs[0].set_aspect('equal')
     axs[0].grid(True)
 
     im3 = axs[1].imshow(Z_mean, interpolation='bilinear', origin='lower', cmap="jet")
-    plt.colorbar(im3, ax=axs[1], format='%.2f', label='µ', shrink=1.0)
+    #plt.colorbar(im3, ax=axs[1], format='%.2f', label='µ', shrink=1.0)
     axs[1].set_xlabel("x [m]")
     axs[1].set_ylabel("y [m]")
     axs[1].set_aspect('equal')
@@ -252,13 +264,17 @@ def distance(g, n_data, part, dist1, dist2, dist3, dist4):
         dist4 = math.sqrt((part4x[g] - part4x[b]) ** 2 + (part4y[g] - part4y[b]) ** 2) + dist4
     return dist1, dist2, dist3, dist4
 
-e1 = str('Error26200.xlsx')
+
 e2 = str('MU26200.xlsx')
 e3 = str('Sigma26200.xlsx')
-e4 = str('Dist26200.xlsx')
+
 
 GEN = 50
-random.seed(26)
+ni = 10
+c1, c2, c3 = 1, 1, 3
+e1 = str('Error1130590.xlsx')
+e4 = str('Dist90.xlsx')
+random.seed(23032016)
 pop = toolbox.population(n=4)
 stats = tools.Statistics(lambda ind: ind.fitness.values)
 stats.register("avg", numpy.mean)
@@ -292,7 +308,11 @@ stdz = np.nanstd(benchmark_array)
 benchmark_array = (benchmark_array - meanz) / stdz
 bench_min = min(benchmark_array)
 bench_max = abs(bench_min[0])
-Benchmark_plot = benchmark_array.reshape(dimx, dimy)
+plot = np.zeros([dimx, dimy])
+for i in range(len(X_test)):
+    plot[X_test[i][0] + abs(grid_min), X_test[i][1] + abs(grid_min)] = benchmark_array[i]
+Benchmark_plot = plot
+#benchmark_array.reshape(dimx, dimy)
 
 bench_data = []
 MSE_data = []
@@ -381,7 +401,7 @@ for g in range(GEN):
         y_p.append(int(part[1]))
         x_bench = int(part[0])
         y_bench = int(part[1])
-        if g % 10 == 0:
+        if g == GEN - 1:
             x_gap = int(part[0]) + abs(grid_min)
             y_gap = int(part[1]) + abs(grid_min)
             x_g.append(x_gap)
@@ -418,9 +438,10 @@ for g in range(GEN):
     MSE_data.append(MSE)
     it.append(c)
 
-    if g >= 10:
-        phi1 = 1
-        phi2 = 1
+    if g >= ni:
+        phi1 = c1
+        phi2 = c2
+        phi3 = c3
         sigma_max, index_x, index_y = sigmamax(Z_var)
         gp_best = gp_generate(index_x, index_y)
     lista_gp_best.append(gp_best)
@@ -439,8 +460,8 @@ MSE_array = np.array(MSE_data)
 MSE_max = max(MSE_array)
 xlimit = MSE_max + MSE_max * 0.1
 prom = (dist1 + dist2 + dist3 + dist4) / 4
-prom_data = []
-prom_data.append(prom)
+prome_data = []
+prome_data.append(prom)
 
 wb = openpyxl.Workbook()
 hoja1 = wb.active
@@ -452,15 +473,15 @@ wb.save(e2)
 hoja3 = wb.active
 hoja3.append(MSE_data)
 wb.save(e3)
-hoja4 = wb.active
-hoja4.append(prom_data)
+hoja5 = wb.active
+hoja5.append(prome_data)
 wb.save(e4)
 
 plot_gaussian(x_a, y_a, n, Z_var, Z_mean, Benchmark_plot)
 
 plt.figure(2)
-im4 = plt.imshow(Benchmark_plot, interpolation='bilinear', origin='lower', cmap="jet")
-plt.colorbar(im4, format='%.2f', shrink=1)
+im4 = plt.imshow(Benchmark_plot.T, interpolation='bilinear', origin='lower', cmap="jet")
+plt.colorbar(im4, format='%.2f', shrink=1, label='µ')
 plt.xlabel("x [m]")
 plt.ylabel("y [m]")
 plt.grid(True)

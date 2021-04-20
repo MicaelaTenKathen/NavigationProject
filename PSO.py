@@ -83,13 +83,13 @@ def plot_movimiento(x_a, y_a):
     plt.close()
 
 sigma_kernel = 0.7
-ker = RBF(length_scale=0.6)
+ker = RBF(length_scale=0.5)
 
 f_max = grid_max
 f_min = grid_min
 j = 0
 i = 0
-map, map2 = np.mgrid[f_min:f_max:1, f_min:f_max:1]
+map1, map2 = np.mgrid[f_min:f_max:1, f_min:f_max:1]
 
 dimx = map2.shape[0]
 dimy = map2.shape[1]
@@ -134,10 +134,22 @@ def plot_gaussian(x_a, y_a, n, Z_var, Z_mean):
     fig, axs = plt.subplots(2, 1, figsize=(3.5, 6))
 
     im1 = axs[0].scatter(x_ga, y_ga, c=n, cmap="gist_rainbow", marker='.')
+    p1x = list(map(lambda x: x + abs(grid_min), part1x))
+    p1y = list(map(lambda x: x + abs(grid_min), part1y))
+    axs[0].plot(p1x, p1y, 'r')
+    p2x = list(map(lambda x: x + abs(grid_min), part2x))
+    p2y = list(map(lambda x: x + abs(grid_min), part2y))
+    axs[0].plot(p2x, p2y, 'w')
+    p3x = list(map(lambda x: x + abs(grid_min), part3x))
+    p3y = list(map(lambda x: x + abs(grid_min), part3y))
+    axs[0].plot(p3x, p3y, 'c')
+    p4x = list(map(lambda x: x + abs(grid_min), part4x))
+    p4y = list(map(lambda x: x + abs(grid_min), part4y))
+    axs[0].plot(p4x, p4y, 'k')
 
     im2 = axs[0].imshow(Z_var, interpolation='bilinear', origin='lower', cmap="viridis")
     plt.colorbar(im2, ax=axs[0], format='%.2f', label='σ', shrink=1)
-    axs[0].set_xlabel("x [m]")
+    #axs[0].set_xlabel("x [m]")
     axs[0].set_ylabel("y [m]")
     axs[0].set_aspect('equal')
     axs[0].grid(True)
@@ -229,12 +241,12 @@ def distance(g, n_data, part, dist1, dist2, dist3, dist4):
         dist4 = math.sqrt((part4x[g] - part4x[b]) ** 2 + (part4y[g] - part4y[b]) ** 2) + dist4
     return dist1, dist2, dist3, dist4
 
-e1 = str('PSOError26.xlsx')
+
 e2 = str('PSOMU26.xlsx')
 e3 = str('PSOSigma26.xlsx')
-e4 = str('PSODist26.xlsx')
-
-random.seed(26)
+e4 = str('PSODist6.xlsx')
+e1 = str('PSOError6.xlsx')
+random.seed(23032016)
 pop = toolbox.population(n=4)
 stats = tools.Statistics(lambda ind: ind.fitness.values)
 stats.register("avg", numpy.mean)
@@ -268,7 +280,11 @@ stdz = np.nanstd(benchmark_array)
 benchmark_array = (benchmark_array - meanz) / stdz
 bench_min = min(benchmark_array)
 bench_max = abs(bench_min[0])
-Benchmark_plot = benchmark_array.reshape(dimx, dimy)
+plot = np.zeros([dimx, dimy])
+for i in range(len(X_test)):
+    plot[X_test[i][0] + abs(grid_min), X_test[i][1] + abs(grid_min)] = benchmark_array[i]
+Benchmark_plot = plot
+#Benchmark_plot = benchmark_array.reshape(dimx, dimy)
 
 bench_data = []
 MSE_data = []
@@ -335,7 +351,7 @@ for part in pop:
     toolbox.update(part, best)
 
 k = 0
-GEN = 50
+GEN = 200
 sigma_max_ant = 0
 sigma_revision = 0
 sigma_ant = 0
@@ -359,7 +375,7 @@ for g in range(GEN):
         y_p.append(part[1])
         x_bench = int(part[0])
         y_bench = int(part[1])
-        if g % 10 == 0:
+        if g == GEN - 1:
             x_gap = int(part[0]) + abs(grid_min)
             y_gap = int(part[1]) + abs(grid_min)
             x_g.append(x_gap)
