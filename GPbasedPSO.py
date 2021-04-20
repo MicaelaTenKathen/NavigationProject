@@ -335,8 +335,6 @@ for part in pop:
     x_g.append(x_gap)
     y_g.append(y_gap)
     part.fitness.values = [Benchmark_plot[x_bench + abs(grid_min)][y_bench + abs(grid_min)]]
-    part_int_fitness = [Benchmark_plot[x_bench + abs(grid_min)][y_bench + abs(grid_min)]]
-    part_int_data.append(part_int_fitness)
     y_data.append(part.fitness.values)
     n.append(n_data)
     part.best = creator.Particle(part)
@@ -409,8 +407,6 @@ for g in range(GEN):
             if n_data > 4:
                 n_data = float(1)
         part.fitness.values = [Benchmark_plot[x_bench + abs(grid_min)][y_bench + abs(grid_min)]]
-        part_int_fitness = [Benchmark_plot[x_bench + abs(grid_min)][y_bench + abs(grid_min)]]
-        part_int_data.append(part_int_fitness)
         dist1, dist2, dist3, dist4 = distance(g, nd, part, dist1, dist2, dist3, dist4)
         nd += float(1)
         if nd > 4:
